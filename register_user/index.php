@@ -37,15 +37,12 @@ include "../includes/classes.inc.php";
 </html>
 
 <?php
-
-    $submitbtn = $_POST['submit-btn'];
-	$username = $_POST['username'];
-	$password = $_POST['password'];
-
-	$DBops = new DBops();
-	extract($_POST);
-	if(isset($submitbtn))
+	if(isset($_POST['submit-btn']))
   {
+	    $username = $_POST['username'];
+    	$password = $_POST['password'];
+	    $DBops = new DBops();
+	    extract($_POST);
 		$DBops->insert("users", $username, $password);
   }
   
