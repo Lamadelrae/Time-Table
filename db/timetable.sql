@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 19, 2020 at 09:31 AM
+-- Generation Time: Apr 21, 2020 at 08:22 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.1
 
@@ -37,15 +37,6 @@ CREATE TABLE `timetable` (
   `status` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `timetable`
---
-
-INSERT INTO `timetable` (`id`, `user_id`, `initial_date`, `final_date`, `diff`, `status`) VALUES
-(1, 1, '2020-04-19 09:24:40', '2020-04-19 09:26:55', '135', 2),
-(2, 1, '2020-04-19 09:27:21', '2020-04-19 09:27:23', '2', 2),
-(3, 1, '2020-04-19 09:28:21', '2020-04-19 09:29:09', '48', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -56,15 +47,9 @@ CREATE TABLE `users` (
   `id` int(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `status` int(255) NOT NULL
+  `status` int(255) NOT NULL,
+  `goal` decimal(9,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `password`, `status`) VALUES
-(1, 'Matthew', '$2y$10$9pVQFYJkseGcSy8JwC.P9OWXDUVCa.RIViec9sSQ25AUhaevFqJD2', 2);
 
 --
 -- Indexes for dumped tables
@@ -92,13 +77,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `timetable`
 --
 ALTER TABLE `timetable`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

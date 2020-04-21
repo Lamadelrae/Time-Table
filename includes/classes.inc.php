@@ -169,36 +169,157 @@ class DBops extends db
 		}
 	}
 
+	public function active_date()
+	{
+		$date = date("Y-m");
+		return $date;
+	}
+
 	public function show_data_table($user_id)
 	{
 		$conn = $this->conn();
 
-		$sql = "SELECT* FROM timetable WHERE user_id = '$user_id' ";
+		$active_date = $this->active_date();
+
+		$initial_active = $active_date."-01";
+		$final_active = $active_date."-30";
+
+		$sql = "SELECT* FROM timetable WHERE initial_date BETWEEN  '$initial_active' AND '$final_active' AND final_date BETWEEN  '$initial_active' AND '$final_active' AND  user_id = '$user_id' ";
 
 		$result = mysqli_query($conn, $sql);
         while($row = mysqli_fetch_assoc($result)):
-		echo "<table class='container table'>
-                <thead>
-                  <tr>
-                    <th scope='col'>User ID</th>
-                    <th scope='col'>Initial Date</th>
-                    <th scope='col'>Final Date</th>
-                    <th scope='col'>Diff</th>
-                  </tr>
-                </thead>
-                <tbody>
+        $diff = $row['diff'];
+        $diff_formatted = gmdate("H:i:s",$diff);
+		echo "   <tbody>
                   <tr>
                     <th>".$row['user_id']."</th>
                     <td>".$row['initial_date']."</td>
                     <td>".$row['final_date']."</td>
-                    <td>".$row['diff']."</td>
+                    <td>".$diff_formatted."</td>
                   </tr>
                   </tbody>
-              </table>";
+                  ";
         endwhile;   
 
 	}
 
+	public function total_diff($user_id)
+	{
+		$conn = $this->conn();
+
+		$active_date = $this->active_date();
+
+		$initial_active = $active_date."-01";
+		$final_active = $active_date."-30";
+
+		$sql = "SELECT SUM(diff) as SUM FROM timetable WHERE initial_date BETWEEN  '$initial_active' AND '$final_active' AND final_date BETWEEN  '$initial_active' AND '$final_active' AND  user_id = '$user_id'";
+
+		$result = mysqli_query($conn, $sql);
+
+		while($row = mysqli_fetch_assoc($result)):
+	    $sum = $row['SUM'];
+	    $sum_hours = $sum/60/60;
+	    $sum_hours_exp = explode(".", $sum_hours);
+	    $sum__formatted = date($sum_hours_exp[0].":i:s",$sum);
+		echo "   <tbody>
+                  <tr>
+                    <th></th>
+                    <td></td>
+                    <td></td>
+                    <td>".$sum__formatted."</td>
+                  </tr>
+                  </tbody>
+                  ";
+		endwhile;	
+	}
+
+	public function interactable_data_table($user_id)
+	{
+		$conn = $this->conn();
+
+		$active_date = $this->active_date();
+
+		$initial_active = $active_date."-01";
+		$final_active = $active_date."-30";
+
+		$sql = "SELECT* FROM timetable WHERE initial_date BETWEEN  '$initial_active' AND '$final_active' AND final_date BETWEEN  '$initial_active' AND '$final_active' AND  user_id = '$user_id' ";
+
+		$result = mysqli_query($conn, $sql);
+        while($row = mysqli_fetch_assoc($result)):
+        $diff = $row['diff'];
+        $diff_formatted = gmdate("H:i:s",$diff);
+		echo "   <tbody>
+                  <tr>
+                    <th>".$row['user_id']."</th>
+                    <td>".$row['initial_date']."</td>
+                    <td>".$row['final_date']."</td>
+                    <td>".$diff_formatted."</td>
+                    <td><a href='edit_time_table.php?id=".$row['id']." ' class='btn btn-success'><i style='color:white;' class='far fa-edit'></i></a></td>
+                  </tr>
+                  </tbody>
+                  ";
+        endwhile;   
+
+	}
+
+	public function edit_time_table($id, $user_id)
+	{
+		$conn = $this->conn();
+
+		$id = mysqli_real_escape_string($conn, $id);
+
+	    $sql = "SELECT* FROM timetable WHERE id = '$id' AND user_id = '$user_id' ";
+
+	    $result = mysqli_query($conn, $sql);
+
+	    while($row = mysqli_fetch_assoc($result)):
+	    echo "<tbody>
+	            <tr>
+	           <form method='post'> 
+	             <td>".$row['user_id']."</td>
+	             <td><input id='initial_date' name='initial_date' type='text' class='form-control' value='".$row['initial_date']."''></td>
+	             <td><input id='final_date' name='final_date' type='text' class='form-control' value='".$row['final_date']."''></td>
+	             <td><input id='diff' name='diff' type='number' class='form-control' value='".$row['diff']."''></td>
+	             <td><button id='btn-edit' name='btn-edit' type='submit' class='btn btn-primary'><i class='fas fa-check'></i></button></td>
+	            </form> 
+	            </tr>
+	          </tbody>
+               <script src='js/jquery.maskedinput-1.1.4.pack.js' type='text/javascript' /></script>
+               <script type='text/javascript'>
+                 $(document).ready(function(){ 
+                   $('#initial_date').mask('9999-99-99 99:99:99');
+                 });
+               </script>
+               <script type='text/javascript'>
+                 $(document).ready(function(){ 
+                   $('#final_date').mask('9999-99-99 99:99:99');
+                 });
+               </script>";
+	    endwhile;
+
+	    if(isset($_POST['btn-edit']))
+	    {
+	    	$initial_date = $_POST['initial_date'];
+	    	$final_date = $_POST['final_date'];
+	    	$diff = $_POST['diff'];
+
+	    	$initial_date = mysqli_real_escape_string($conn, $initial_date);
+	    	$final_date = mysqli_real_escape_string($conn, $final_date);
+	    	$diff = mysqli_real_escape_string($conn, $diff);
+
+	    	$update = "UPDATE timetable SET initial_date = '$initial_date', final_date = '$final_date', diff = '$diff' WHERE id = '$id' AND user_id = '$user_id' ";
+
+	    	mysqli_query($conn, $update);
+
+	    	header("Location:/projects/TimeTable/structure/edit_time_table.php?id=".$id." ");
+	    }
+	    
+	}
+
+	public function monthly_report()
+	{
+		echo "<input type=''>";
+	}
 }
 
 
